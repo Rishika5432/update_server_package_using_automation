@@ -1,0 +1,41 @@
+---
+- name: Update packages and store count in a file
+  hosts:
+    -  linux_servers
+    - localhost
+  become: yes
+  tasks:
+    - name: Update packages using yum
+      yum:
+        name: "*"
+        state: latest
+      register: yum_update
+
+    - name: Set fact for updated package count
+      set_fact:
+               updated_count: "{{ yum_update.results | map(attribute='changed') | list | count }}"
+    - name: Collect updated counts
+      set_fact:
+                  updated_counts: "{{ updated_counts | default({}) | combine({inventory_hostname: updated_count}) }}"
+      run_once: false
+    - name: Remove the output file if it exists
+      file:
+            path: /tmp/updated_package_counts.csv
+            state: absent
+      delegate_to: localhost  # Ensure this runs on the control machine
+    - name: Create output file
+      lineinfile:
+        path: /testing_automation/updated_package_counts.csv
+        line: "hostname ,updated_package_count "
+        create: yes
+        state: present
+      delegate_to: localhost  # Write to the file on the control machine
+      run_once: true  # Ensure this task runs only once
+
+    - name: Append count for each host to the output file
+      lineinfile:
+        path: /testing_automation/updated_package_counts.csv
+        line: "{{ inventory_hostname }}: {{ updated_count }}"
+        create: yes
+        state: present
+      delegate_to: localhost  # Write to the file on the control machine

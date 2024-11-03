@@ -1,0 +1,5 @@
+hostname,ansible_user,ansible_password,os_type
+3.83.223.226,ec2-user,Ericsson@12345,Linux
+3.94.171.145,ec2-user,Ericsson@12345,linux
+#18.206.204.234,ec2-user,Ericsson@12345,linux
+#52.87.180.8,ec2-user,Ericsson@12345,WinDows
