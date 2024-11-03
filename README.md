@@ -76,13 +76,13 @@ ansible-playbook -i inventory.json update_yum.yml
 
 2. **Make the Bash Script Executable**:
    ```bash
-   chmod +x run_all.sh
+   chmod +x bash_script.sh
    ```
 
 3. **Run the Script**:
    Execute the complete automation workflow with a single command:
    ```bash
-   ./run_all.sh
+   ./bash_script.sh
    ```
 
 ## 🌟 Benefits
