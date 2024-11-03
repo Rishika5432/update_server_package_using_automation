@@ -20,12 +20,12 @@
       run_once: false
     - name: Remove the output file if it exists
       file:
-            path: /tmp/updated_package_counts.csv
+            path: /tmp/Redhat-package-status.csv
             state: absent
       delegate_to: localhost  # Ensure this runs on the control machine
     - name: Create output file
       lineinfile:
-        path: /testing_automation/updated_package_counts.csv
+        path: /testing_automation/Redhat-package-status.csv
         line: "hostname ,updated_package_count "
         create: yes
         state: present
@@ -34,7 +34,7 @@
 
     - name: Append count for each host to the output file
       lineinfile:
-        path: /testing_automation/updated_package_counts.csv
+        path: /testing_automation/Redhat-package-status.csv
         line: "{{ inventory_hostname }}: {{ updated_count }}"
         create: yes
         state: present

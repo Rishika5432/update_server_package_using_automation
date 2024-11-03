@@ -28,12 +28,12 @@
     # writing output into a  csv file 
     - name: Remove the output file if it exists
       file:
-            path: /testing_automation/updated_package_counts.csv
+            path: /testing_automation/Redhat-package-status.csv
             state: absent
       delegate_to: localhost
     - name: Create output file
       lineinfile:
-        path: /testing_automation/updated_package_counts.csv
+        path: /testing_automation/Redhat-package-status.csv
         line: "hostname,updated_package_count "
         create: yes
         state: present
@@ -41,7 +41,7 @@
       delegate_to : localhost
     - name: Append count for each host to the output file
       lineinfile:
-        path: /testing_automation/updated_package_counts.csv
+        path: /testing_automation/Redhat-package-status.csv
         line: "{{ inventory_hostname }},{{ second_to_last_line }}"
         create: yes
       delegate_to : localhost

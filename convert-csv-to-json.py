@@ -21,7 +21,7 @@ def csv_to_json(csv_file) :
 if __name__ == "__main__":
   csv_file = sys.argv[1]  # Pass the CSV file as an argument
   inventory=csv_to_json(csv_file)
-  with open("linux_host.json",'w') as file  : 
+  with open("linux-host-config.json",'w') as file  : 
     json.dump(inventory,file,indent=5)
   print("Ansible inventrory file is ready ")
 

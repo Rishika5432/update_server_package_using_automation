@@ -1,15 +1,10 @@
 #!/bin/bash
+#setup files 
+INVENTORY_FILE="linux-host-config.json"
+PLAYBOOK_FILE="Redhat-package-status-automation.yml"
 
 # Run the CSV to JSON conversion script
-python3 csv_to_json_convert.py "$1"
-
-# Run the Ansible playbook
-cd "/testing_automation/"
-INVENTORY_FILE="linux_host.json"
-PLAYBOOK_FILE="updated_package_count_automation.yml"
-
-# Run the CSV to JSON conversion script
- python3 csv_to_json_convert.py "$1"
+ python3 convert-csv-to-json.py "$1"
  echo "file converted to  CSV to JSON"
 
 echo "Running Ansible playbook..."
