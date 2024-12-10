@@ -3,18 +3,13 @@
           "children": {
                "linux_servers": {
                     "hosts": {
-                         "3.83.223.226": {
-                              "ansible_host": "3.83.223.226",
+                         "54.147.59.240": {
+                              "ansible_host": "54.147.59.240",
                               "ansible_user": "ec2-user",
                               "ansible_password": "Ericsson@12345"
                          },
-                         "3.94.171.145": {
-                              "ansible_host": "3.94.171.145",
-                              "ansible_user": "ec2-user",
-                              "ansible_password": "Ericsson@12345"
-                         },
-                         "#18.206.204.234": {
-                              "ansible_host": "#18.206.204.234",
+                         "18.215.143.130": {
+                              "ansible_host": "18.215.143.130",
                               "ansible_user": "ec2-user",
                               "ansible_password": "Ericsson@12345"
                          }
@@ -22,8 +17,8 @@
                },
                "windows_servers": {
                     "hosts": {
-                         "#52.87.180.8": {
-                              "ansible_host": "#52.87.180.8",
+                         "23.22.243.75": {
+                              "ansible_host": "23.22.243.75",
                               "ansible_user": "ec2-user",
                               "ansible_password": "Ericsson@12345"
                          }

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run the Ansible playbook
-cd "/testing_automation/"
+#cd "/testing_automation/"
 INVENTORY_FILE="linux_host.json"
 PLAYBOOK_FILE="update_redhat_package_status_automation.yml"
 
