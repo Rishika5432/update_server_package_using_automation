@@ -34,25 +34,57 @@ csv_to_json('inventory.csv', 'inventory.json')
 
 ### 2. **YUM Package Updater**: `update_yum.yml`
 Using Ansible, this playbook ensures your packages are up-to-date, enhancing security and stability.
-
-```yaml
----
-- name: Update YUM packages on Red Hat servers
-  hosts: all
-  become: yes
-  tasks:
-    - name: Update all installed packages
-      yum:
-        name: '*'
-        state: latest
-      register: yum_update_result
-
-    - name: Write package status to a file
-      copy:
-        content: "{{ yum_update_result }}"
-        dest: "yum_update_status.txt"
 ```
+---
+- name: Update servers and capture second-to-last line
+  hosts: 
+     -  linux_servers
+     - localhost
+  gather_facts: no
+  become : yes
+  tasks:
+    - name: Update packages using yum
+      command: yum update -y
+      register: update_result
+      ignore_errors: yes
 
+    - name: Check if yum command succeeded
+      fail:
+        msg: "Yum update failed on {{ inventory_hostname }}. Output: {{ update_result.stderr }}"
+      when: update_result.rc != 0
+
+    - name: Ensure stdout is populated
+      fail:
+        msg: "No output found from yum update on {{ inventory_hostname }}."
+      when: update_result.stdout | length == 0
+
+    - name: Extract the second-to-last line from the output
+      set_fact:
+        second_to_last_line: "{{ update_result.stdout_lines[-2] }}"
+      when: update_result.stdout_lines | length >= 2
+    # writing output into a  csv file 
+    - name: Remove the output file if it exists
+      file:
+            path: /testing_automation/redhat_updated_package_status.csv
+            state: absent
+      delegate_to: localhost
+    - name: Create output file
+      lineinfile:
+        path: /testing_automation/redhat_updated_package_status.csv
+        line: "hostname,updated_package_count "
+        create: yes
+        state: present
+      run_once : true
+      delegate_to : localhost
+    - name: Append count for each host to the output file
+      lineinfile:
+        path: /testing_automation/redhat_updated_package_status.csv
+        line: "{{ inventory_hostname }},{{ second_to_last_line }}"
+        create: yes
+      delegate_to : localhost
+      when: second_to_last_line is defined
+      ```
+   
 ### 3. **Run All Script**: `run_all.sh`
 A simple Bash script that ties everything together. Run it to execute the entire process in one command!
 
