@@ -1,48 +1,54 @@
 ---
-- name: Update servers and capture second-to-last line
-  hosts: 
-     -  linux_servers
-     - localhost
-  gather_facts: no
-  become : yes
+- name: Update packages and store count in a file
+  hosts:
+    -  linux_servers
+  become: yes
   tasks:
     - name: Update packages using yum
-      command: yum update -y
-      register: update_result
-      ignore_errors: yes
+      yum:
+        name: "*"
+        state: latest
+      register: yum_update
 
-    - name: Check if yum command succeeded
-      fail:
-        msg: "Yum update failed on {{ inventory_hostname }}. Output: {{ update_result.stderr }}"
-      when: update_result.rc != 0
+    - name: Debug output of yum_update
+      debug : 
+            var: yum_update
 
-    - name: Ensure stdout is populated
-      fail:
-        msg: "No output found from yum update on {{ inventory_hostname }}."
-      when: update_result.stdout | length == 0
-
-    - name: Extract the second-to-last line from the output
+    - name: Set fact for updated package count
       set_fact:
-        second_to_last_line: "{{ update_result.stdout_lines[-2] }}"
-      when: update_result.stdout_lines | length >= 2
-    # writing output into a  csv file 
+               updated_count: "{{ (yum_update.results | map(attribute='changed') | list | count) | int }}"
+    - name: Collect updated counts
+      set_fact:
+                  updated_counts: "{{ updated_counts | default({}) | combine({inventory_hostname: updated_count}) }}"
+      run_once: false
     - name: Remove the output file if it exists
       file:
-            path: /testing_automation/redhat_updated_package_status.csv
+            path: updated_package_counts.csv
             state: absent
-      delegate_to: localhost
+      delegate_to: localhost  # Ensure this runs on the control machine
     - name: Create output file
       lineinfile:
-        path: /testing_automation/redhat_updated_package_status.csv
-        line: "hostname,updated_package_count "
+        path: updated_package_counts.csv
+        line: "hostname ,updated_package_count "
         create: yes
         state: present
-      run_once : true
-      delegate_to : localhost
+      delegate_to: localhost  # Write to the file on the control machine
+      run_once: true  # Ensure this task runs only once
+
     - name: Append count for each host to the output file
       lineinfile:
-        path: /testing_automation/redhat_updated_package_status.csv
-        line: "{{ inventory_hostname }},{{ second_to_last_line }}"
+        path: updated_package_counts.csv
+        line: "{{ inventory_hostname }}: {{ updated_count }} package updated"
         create: yes
-      delegate_to : localhost
-      when: second_to_last_line is defined
+        state: present
+      delegate_to: localhost 
+      when : updated_count | int  > 0  # Write to the file on the control machine
+
+    - name: Check if updated_count is 0 and write second last line of yum command output
+      lineinfile:
+        path: updated_package_counts.csv
+        line: "{{ inventory_hostname }} : {{ yum_update.msg }} " #if yum_update < 1 else yum_update.result }}"
+        create: yes
+        state: present
+      when: updated_count | int == 0 
+      delegate_to: localhost 
